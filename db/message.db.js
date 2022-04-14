@@ -21,7 +21,11 @@ const createMessage = async (message) => {
     },
   };
   // Call DynamoDB to add the item to the table
-  const data = await docClient.put(params).promise();
+  try {
+    await docClient.put(params).promise();
+  } catch (err) {
+    console.log("[DB]: ", err.message);
+  }
 };
 
 const messageDb = {
