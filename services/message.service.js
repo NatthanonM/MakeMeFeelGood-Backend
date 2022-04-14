@@ -1,6 +1,6 @@
 const { messageDb } = require("../db");
 const AWS = require("aws-sdk");
-var comprehend = new AWS.Comprehend();
+var comprehend = new AWS.Comprehend({ apiVersion: "2017-11-27" });
 
 const createMessage = async (message) => {
   // call AWS Comprehend
