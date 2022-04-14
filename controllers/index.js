@@ -1,7 +1,8 @@
-const { postMessage } = require("./message.controller");
+const { postMessage, getMessages } = require("./message.controller");
 
 const message = {
   postMessage,
+  getMessages,
 };
 
 module.exports = {

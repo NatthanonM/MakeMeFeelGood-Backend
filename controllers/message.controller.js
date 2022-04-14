@@ -13,6 +13,21 @@ const postMessage = async (req, res, next) => {
   }
 };
 
+const getMessages = async (req, res, next) => {
+  const { timestamp } = req.params;
+  // call message service
+  try {
+    var messages = await messageService.getMessages(parseInt(timestamp));
+    res.end(JSON.stringify(messages));
+    res.sendStatus(200);
+    next();
+  } catch (e) {
+    console.log(e.message);
+    res.sendStatus(500) && next(e);
+  }
+};
+
 module.exports = {
   postMessage,
+  getMessages,
 };

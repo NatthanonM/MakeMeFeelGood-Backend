@@ -28,8 +28,36 @@ const createMessage = async (message, voice_id) => {
   }
 };
 
+const getMessage = async (start) => {
+  const date = new Date(start);
+  const stop = date.setDate(date.getDate() + 1);
+  try {
+    var params = {
+      TableName: configs.dynamodbTableName,
+      ExpressionAttributeNames: {
+        "#ID": "id",
+        "#T": "text",
+        "#UV": "upvote",
+        "#VI": "voice_id",
+      },
+      ExpressionAttributeValues: {
+        ":start": start,
+        ":stop": stop,
+      },
+      FilterExpression: "created_at >= :start AND created_at < :stop",
+      ProjectionExpression: "#ID, #T, #UV, #VI",
+    };
+    var data = await docClient.scan(params).promise();
+    var sortedItems = data.Items.sort((a, b) => b.upvote - a.upvote);
+  } catch (err) {
+    console.log("[DB]: ", err, err.stack);
+  }
+  return sortedItems;
+};
+
 const messageDb = {
   createMessage,
+  getMessage,
 };
 
 module.exports = {
