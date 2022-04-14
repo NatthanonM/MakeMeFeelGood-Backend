@@ -7,7 +7,7 @@ AWS.config.update({ region: configs.region });
 // Create DynamoDB document client
 var docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: "2012-08-10" });
 
-const createMessage = async (message) => {
+const createMessage = async (message, voice_id) => {
   const utcTimestamp = new Date().getTime();
   var params = {
     TableName: configs.dynamodbTableName,
@@ -17,7 +17,7 @@ const createMessage = async (message) => {
       created_at: utcTimestamp,
       upvote: 0,
       report_count: 0,
-      voice_id: "",
+      voice_id: voice_id,
     },
   };
   // Call DynamoDB to add the item to the table
