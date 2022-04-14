@@ -4,7 +4,7 @@ const createMessage = async (message) => {
   // call AWS Semtiment
   // call AWS Polly
   // call message database
-  messageDb.createMessage(message);
+  await messageDb.createMessage(message);
 };
 
 module.exports = {

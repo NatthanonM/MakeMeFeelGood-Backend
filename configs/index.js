@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const configs = {
   port: process.env.PORT || 3000,
   region: process.env.REGION || "",
