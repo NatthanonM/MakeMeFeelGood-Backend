@@ -27,7 +27,33 @@ const getMessages = async (req, res, next) => {
   }
 };
 
+const upvoteMessage = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    await messageService.upvoteMessage(id)
+    res.sendStatus(204);
+    next();
+  } catch (e) {
+    console.log(e.message);
+    res.sendStatus(500) && next(e);
+  }
+};
+
+const reportMessage = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    await messageService.reportMessage(id)
+    res.sendStatus(204);
+    next();
+  } catch (e) {
+    console.log(e.message);
+    res.sendStatus(500) && next(e);
+  }
+};
+
 module.exports = {
   postMessage,
   getMessages,
+  upvoteMessage,
+  reportMessage
 };

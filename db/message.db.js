@@ -28,7 +28,7 @@ const createMessage = async (message, voice_id) => {
   }
 };
 
-const getMessage = async (start) => {
+const getMessages = async (start) => {
   const date = new Date(start);
   const stop = date.setDate(date.getDate() + 1);
   try {
@@ -55,9 +55,69 @@ const getMessage = async (start) => {
   return sortedItems;
 };
 
+const getMessage = async (id) => {
+  var params = {
+    TableName: configs.dynamodbTableName,
+    KeyConditionExpression: "id = :id",
+    ExpressionAttributeValues: {
+      ":id": id,
+    },
+  };
+  try {
+    var data = await docClient.query(params).promise();
+    if (data.Items.length == 0) throw {message: 'Item not found'}
+    return data.Items[0]
+  } catch (err) {
+    console.log("[DB]: ", err.message);
+  }
+};
+
+const upvoteMessage = async (id, created_at) => {
+  var params = {
+    TableName: configs.dynamodbTableName,
+    Key: {
+      "id":  id,
+      "created_at": created_at
+    },
+    UpdateExpression: 'set upvote = upvote + :upvote',
+    ExpressionAttributeValues: {
+      ':upvote' : 1,
+    }
+  };
+
+  try {
+    await docClient.update(params).promise();
+  } catch (err) {
+    console.log("[DB]: ", err.message);
+  }
+};
+
+const reportMessage = async (id, created_at) => {
+  var params = {
+    TableName: configs.dynamodbTableName,
+    Key: {
+      "id":  id,
+      "created_at": created_at
+    },
+    UpdateExpression: 'set report_count = report_count + :report_count',
+    ExpressionAttributeValues: {
+      ':report_count' : 1,
+    }
+  };
+
+  try {
+    await docClient.update(params).promise();
+  } catch (err) {
+    console.log("[DB]: ", err.message);
+  }
+};
+
 const messageDb = {
   createMessage,
+  getMessages,
   getMessage,
+  upvoteMessage,
+  reportMessage
 };
 
 module.exports = {

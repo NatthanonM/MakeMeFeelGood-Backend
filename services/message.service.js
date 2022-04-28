@@ -49,7 +49,7 @@ const createMessage = async (message) => {
 
 const getMessages = async (timestamp) => {
   // get message from databast
-  var messages = await messageDb.getMessage(timestamp);
+  var messages = await messageDb.getMessages(timestamp);
   var messages = messages.map((message) => {
     var params = {
       Bucket: `${configs.S3BucketName}/voice`,
@@ -62,7 +62,25 @@ const getMessages = async (timestamp) => {
   return messages;
 };
 
+const upvoteMessage = async (id) => {
+  // get message from database
+  var message = await messageDb.getMessage(id);
+  // upvote message
+  var { created_at } = message
+  await messageDb.upvoteMessage(id, created_at)
+};
+
+const reportMessage = async (id) => {
+  // get message from database
+  var message = await messageDb.getMessage(id);
+  // report message
+  var { created_at } = message
+  await messageDb.reportMessage(id, created_at)
+};
+
 module.exports = {
   createMessage,
   getMessages,
+  upvoteMessage,
+  reportMessage
 };

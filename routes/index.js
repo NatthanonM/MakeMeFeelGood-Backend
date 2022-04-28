@@ -5,5 +5,7 @@ const router = express.Router();
 
 router.post("/message", message.postMessage);
 router.get("/message/:timestamp", message.getMessages);
+router.patch("/message/upvote/:id", message.upvoteMessage);
+router.patch("/message/report/:id", message.reportMessage);
 
 module.exports = router;
