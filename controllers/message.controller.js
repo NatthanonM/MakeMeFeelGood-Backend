@@ -30,7 +30,7 @@ const getMessages = async (req, res, next) => {
 const upvoteMessage = async (req, res, next) => {
   const { id } = req.params;
   try {
-    await messageService.upvoteMessage(id)
+    await messageService.upvoteMessage(id);
     res.sendStatus(204);
     next();
   } catch (e) {
@@ -42,7 +42,7 @@ const upvoteMessage = async (req, res, next) => {
 const reportMessage = async (req, res, next) => {
   const { id } = req.params;
   try {
-    await messageService.reportMessage(id)
+    await messageService.reportMessage(id);
     res.sendStatus(204);
     next();
   } catch (e) {
@@ -55,5 +55,5 @@ module.exports = {
   postMessage,
   getMessages,
   upvoteMessage,
-  reportMessage
+  reportMessage,
 };

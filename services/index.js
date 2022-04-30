@@ -1,10 +1,15 @@
-const { createMessage, getMessages, upvoteMessage, reportMessage } = require("./message.service");
+const {
+  createMessage,
+  getMessages,
+  upvoteMessage,
+  reportMessage,
+} = require("./message.service");
 
 const messageService = {
   createMessage,
   getMessages,
   upvoteMessage,
-  reportMessage
+  reportMessage,
 };
 
 module.exports = {

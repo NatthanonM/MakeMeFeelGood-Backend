@@ -65,8 +65,8 @@ const getMessage = async (id) => {
   };
   try {
     var data = await docClient.query(params).promise();
-    if (data.Items.length == 0) throw {message: 'Item not found'}
-    return data.Items[0]
+    if (data.Items.length == 0) throw { message: "Item not found" };
+    return data.Items[0];
   } catch (err) {
     console.log("[DB]: ", err.message);
   }
@@ -76,13 +76,13 @@ const upvoteMessage = async (id, created_at) => {
   var params = {
     TableName: configs.dynamodbTableName,
     Key: {
-      "id":  id,
-      "created_at": created_at
+      id: id,
+      created_at: created_at,
     },
-    UpdateExpression: 'set upvote = upvote + :upvote',
+    UpdateExpression: "set upvote = upvote + :upvote",
     ExpressionAttributeValues: {
-      ':upvote' : 1,
-    }
+      ":upvote": 1,
+    },
   };
 
   try {
@@ -96,13 +96,13 @@ const reportMessage = async (id, created_at) => {
   var params = {
     TableName: configs.dynamodbTableName,
     Key: {
-      "id":  id,
-      "created_at": created_at
+      id: id,
+      created_at: created_at,
     },
-    UpdateExpression: 'set report_count = report_count + :report_count',
+    UpdateExpression: "set report_count = report_count + :report_count",
     ExpressionAttributeValues: {
-      ':report_count' : 1,
-    }
+      ":report_count": 1,
+    },
   };
 
   try {
@@ -112,12 +112,36 @@ const reportMessage = async (id, created_at) => {
   }
 };
 
+const findMessage = async (message) => {
+  try {
+    var params = {
+      TableName: configs.dynamodbTableName,
+      ExpressionAttributeNames: {
+        "#ID": "id",
+        "#T": "text",
+        "#UV": "upvote",
+        "#VI": "voice_id",
+      },
+      ExpressionAttributeValues: {
+        ":message": message,
+      },
+      FilterExpression: "#T = :message",
+      ProjectionExpression: "#ID, #T, #UV, #VI",
+    };
+    var data = await docClient.scan(params).promise();
+  } catch (err) {
+    console.log("[DB]: ", err, err.stack);
+  }
+  return data;
+};
+
 const messageDb = {
   createMessage,
   getMessages,
   getMessage,
   upvoteMessage,
-  reportMessage
+  reportMessage,
+  findMessage,
 };
 
 module.exports = {

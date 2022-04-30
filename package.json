@@ -8,5 +8,8 @@
   },
   "scripts": {
     "start": "node app.js"
+  },
+  "devDependencies": {
+    "prettier": "2.6.2"
   }
 }

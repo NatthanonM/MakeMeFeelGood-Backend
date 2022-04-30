@@ -13,7 +13,7 @@ const createMessage = async (message) => {
       Text: message,
     };
     var sentimentData = await comprehend.detectSentiment(params).promise();
-    console.log(sentimentData);
+    // console.log(sentimentData);
   } catch (err) {
     console.log("[SERVICE: ]", err.message);
   }
@@ -21,30 +21,34 @@ const createMessage = async (message) => {
     return;
   }
 
-  // call AWS Polly
-  try {
-    var params = {
-      OutputFormat: "mp3",
-      OutputS3BucketName: configs.S3BucketName,
-      Text: message,
-      VoiceId: "Joanna",
-      Engine: "neural",
-      LanguageCode: "en-US",
-      OutputS3KeyPrefix: "voice/",
-    };
-    var speechSynthesisData = await polly
-      .startSpeechSynthesisTask(params)
-      .promise();
-    console.log(speechSynthesisData);
-  } catch (err) {
-    console.log(err, err.stack);
+  // get message from database for check duplication
+  var record = await messageDb.findMessage(message);
+  if (record.Count == 0) {
+    // call AWS Polly
+    try {
+      var params = {
+        OutputFormat: "mp3",
+        OutputS3BucketName: configs.S3BucketName,
+        Text: message,
+        VoiceId: "Joanna",
+        Engine: "neural",
+        LanguageCode: "en-US",
+        OutputS3KeyPrefix: "voice/",
+      };
+      var speechSynthesisData = await polly
+        .startSpeechSynthesisTask(params)
+        .promise();
+      // console.log(speechSynthesisData);
+      var voice_id = speechSynthesisData.SynthesisTask.TaskId;
+    } catch (err) {
+      console.log(err, err.stack);
+    }
+  } else {
+    var voice_id = record.Items[0].voice_id;
   }
 
   // call message database
-  await messageDb.createMessage(
-    message,
-    speechSynthesisData.SynthesisTask.TaskId
-  );
+  await messageDb.createMessage(message, voice_id);
 };
 
 const getMessages = async (timestamp) => {
@@ -66,21 +70,21 @@ const upvoteMessage = async (id) => {
   // get message from database
   var message = await messageDb.getMessage(id);
   // upvote message
-  var { created_at } = message
-  await messageDb.upvoteMessage(id, created_at)
+  var { created_at } = message;
+  await messageDb.upvoteMessage(id, created_at);
 };
 
 const reportMessage = async (id) => {
   // get message from database
   var message = await messageDb.getMessage(id);
   // report message
-  var { created_at } = message
-  await messageDb.reportMessage(id, created_at)
+  var { created_at } = message;
+  await messageDb.reportMessage(id, created_at);
 };
 
 module.exports = {
   createMessage,
   getMessages,
   upvoteMessage,
-  reportMessage
+  reportMessage,
 };
