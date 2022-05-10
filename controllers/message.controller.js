@@ -18,8 +18,7 @@ const getMessages = async (req, res, next) => {
   // call message service
   try {
     var messages = await messageService.getMessages(parseInt(timestamp));
-    res.end(JSON.stringify(messages));
-    res.sendStatus(200);
+    res.status(200).json(messages);
     next();
   } catch (e) {
     console.log(e.message);
