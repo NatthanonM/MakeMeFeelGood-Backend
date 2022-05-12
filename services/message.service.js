@@ -26,11 +26,13 @@ const createMessage = async (message) => {
   if (record.Count == 0) {
     // call AWS Polly
     try {
+      var voiceIds = ["Salli", "Ivy", "Kevin", "Justin", "Kimberly"];
+      var randVoiceId = voiceIds[message.length % 5];
       var params = {
         OutputFormat: "mp3",
         OutputS3BucketName: configs.S3BucketName,
         Text: message,
-        VoiceId: "Joanna",
+        VoiceId: randVoiceId,
         Engine: "neural",
         LanguageCode: "en-US",
         OutputS3KeyPrefix: "voice/",
