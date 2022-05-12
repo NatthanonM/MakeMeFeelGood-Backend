@@ -4,8 +4,8 @@ const postMessage = async (req, res, next) => {
   const { message } = req.body;
   // call message service
   try {
-    await messageService.createMessage(message);
-    res.sendStatus(201);
+    var id = await messageService.createMessage(message);
+    res.status(201).json({ id });
     next();
   } catch (e) {
     console.log(e.message);

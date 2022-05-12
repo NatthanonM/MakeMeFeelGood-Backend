@@ -21,8 +21,21 @@ const createMessage = async (message) => {
     return;
   }
 
-  // get message from database for check duplication
+  // find message message of today for checking duplication
+  const startOfDayUtcTimestamp = new Date().setUTCHours(0, 0, 0, 0);
+  const stopOfDayUtcTimestamp = new Date().setUTCHours(23, 59, 59, 999);
+  var todayRecords = await messageDb.findMessage(
+    message,
+    startOfDayUtcTimestamp,
+    stopOfDayUtcTimestamp
+  );
+  if (todayRecords.Count != 0) {
+    return todayRecords.Items[0].id;
+  }
+  // get message from database for checking duplication
   var record = await messageDb.findMessage(message);
+  console.log(todayRecords);
+  console.log(record);
   if (record.Count == 0) {
     // call AWS Polly
     try {
@@ -50,7 +63,8 @@ const createMessage = async (message) => {
   }
 
   // call message database
-  await messageDb.createMessage(message, voice_id);
+  var id = await messageDb.createMessage(message, voice_id);
+  return id;
 };
 
 const getMessages = async (timestamp) => {

@@ -9,10 +9,11 @@ var docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: "2012-08-10" });
 
 const createMessage = async (message, voice_id) => {
   const utcTimestamp = new Date().getTime();
+  var id = uuid.v4();
   var params = {
     TableName: configs.dynamodbTableName,
     Item: {
-      id: uuid.v4(),
+      id: id,
       text: message,
       created_at: utcTimestamp,
       upvote: 0,
@@ -26,6 +27,7 @@ const createMessage = async (message, voice_id) => {
   } catch (err) {
     console.log("[DB]: ", err.message);
   }
+  return id;
 };
 
 const getMessages = async (start) => {
@@ -112,22 +114,43 @@ const reportMessage = async (id, created_at) => {
   }
 };
 
-const findMessage = async (message) => {
+const findMessage = async (message, start = null, stop = null) => {
   try {
-    var params = {
-      TableName: configs.dynamodbTableName,
-      ExpressionAttributeNames: {
-        "#ID": "id",
-        "#T": "text",
-        "#UV": "upvote",
-        "#VI": "voice_id",
-      },
-      ExpressionAttributeValues: {
-        ":message": message,
-      },
-      FilterExpression: "#T = :message",
-      ProjectionExpression: "#ID, #T, #UV, #VI",
-    };
+    if (start || stop) {
+      var params = {
+        TableName: configs.dynamodbTableName,
+        ExpressionAttributeNames: {
+          "#ID": "id",
+          "#T": "text",
+          "#UV": "upvote",
+          "#VI": "voice_id",
+        },
+        ExpressionAttributeValues: {
+          ":message": message,
+          ":start": start,
+          ":stop": stop,
+        },
+        FilterExpression:
+          "#T = :message AND created_at >= :start AND created_at < :stop",
+        ProjectionExpression: "#ID, #T, #UV, #VI",
+      };
+    } else {
+      var params = {
+        TableName: configs.dynamodbTableName,
+        ExpressionAttributeNames: {
+          "#ID": "id",
+          "#T": "text",
+          "#UV": "upvote",
+          "#VI": "voice_id",
+        },
+        ExpressionAttributeValues: {
+          ":message": message,
+        },
+        FilterExpression: "#T = :message",
+        ProjectionExpression: "#ID, #T, #UV, #VI",
+      };
+    }
+
     var data = await docClient.scan(params).promise();
   } catch (err) {
     console.log("[DB]: ", err, err.stack);
