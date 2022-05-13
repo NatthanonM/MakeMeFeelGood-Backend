@@ -77,6 +77,7 @@ const getMessages = async (timestamp) => {
     };
     var url = s3.getSignedUrl("getObject", params);
     message.url = url;
+    delete message.voice_id;
     return message;
   });
   return messages;
