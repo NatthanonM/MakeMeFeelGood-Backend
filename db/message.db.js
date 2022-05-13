@@ -32,6 +32,7 @@ const createMessage = async (message, voice_id) => {
     text: message,
     upvote: 0,
     voice_id: voice_id,
+    time: utcTimestamp
   };
   return res;
 };
@@ -47,13 +48,14 @@ const getMessages = async (start) => {
         "#T": "text",
         "#UV": "upvote",
         "#VI": "voice_id",
+        "#CA": "created_at"
       },
       ExpressionAttributeValues: {
         ":start": start,
         ":stop": stop,
       },
       FilterExpression: "created_at >= :start AND created_at < :stop",
-      ProjectionExpression: "#ID, #T, #UV, #VI",
+      ProjectionExpression: "#ID, #T, #UV, #VI, #CA", 
     };
     var data = await docClient.scan(params).promise();
     var sortedItems = data.Items.sort((a, b) => b.upvote - a.upvote);
