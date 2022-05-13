@@ -1,15 +1,23 @@
 const { messageService } = require("../services");
 
 const postMessage = async (req, res, next) => {
-  const { message } = req.body;
+  const { message: text } = req.body;
   // call message service
   try {
-    var id = await messageService.createMessage(message);
-    res.status(201).json({ id });
+    var message = await messageService.createMessage(text);
+    res.status(201).json(message);
     next();
   } catch (e) {
-    console.log(e.message);
-    res.sendStatus(500) && next(e);
+    if (e.message === "duplicated message") {
+      res.sendStatus(409);
+      return;
+    } else if (e.message === "negative") {
+      res.sendStatus(400);
+      return;
+    } else {
+      console.log(e.message);
+      res.sendStatus(500) && next(e);
+    }
   }
 };
 

@@ -5,46 +5,43 @@ var comprehend = new AWS.Comprehend({ apiVersion: "2017-11-27" });
 var polly = new AWS.Polly({ apiVersion: "2016-06-10" });
 var s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
-const createMessage = async (message) => {
-  // call AWS Comprehend
-  try {
-    let params = {
-      LanguageCode: "en",
-      Text: message,
-    };
-    var sentimentData = await comprehend.detectSentiment(params).promise();
-    // console.log(sentimentData);
-  } catch (err) {
-    console.log("[SERVICE: ]", err.message);
-  }
-  if (sentimentData.Sentiment == "NEGATIVE") {
-    return;
-  }
-
+const createMessage = async (text) => {
   // find message message of today for checking duplication
   const startOfDayUtcTimestamp = new Date().setUTCHours(0, 0, 0, 0);
   const stopOfDayUtcTimestamp = new Date().setUTCHours(23, 59, 59, 999);
   var todayRecords = await messageDb.findMessage(
-    message,
+    text,
     startOfDayUtcTimestamp,
     stopOfDayUtcTimestamp
   );
   if (todayRecords.Count != 0) {
-    return todayRecords.Items[0].id;
+    throw new Error("duplicated message");
   }
   // get message from database for checking duplication
-  var record = await messageDb.findMessage(message);
-  console.log(todayRecords);
-  console.log(record);
+  var record = await messageDb.findMessage(text);
   if (record.Count == 0) {
+    // call AWS Comprehend
+    try {
+      let params = {
+        LanguageCode: "en",
+        Text: text,
+      };
+      var sentimentData = await comprehend.detectSentiment(params).promise();
+      // console.log(sentimentData);
+    } catch (err) {
+      console.log("[SERVICE: ]", err.message);
+    }
+    if (sentimentData.Sentiment == "NEGATIVE") {
+      throw new Error("negative");
+    }
     // call AWS Polly
     try {
       var voiceIds = ["Salli", "Ivy", "Kevin", "Justin", "Kimberly"];
-      var randVoiceId = voiceIds[message.length % 5];
+      var randVoiceId = voiceIds[text.length % 5];
       var params = {
         OutputFormat: "mp3",
         OutputS3BucketName: configs.S3BucketName,
-        Text: message,
+        Text: text,
         VoiceId: randVoiceId,
         Engine: "neural",
         LanguageCode: "en-US",
@@ -63,8 +60,15 @@ const createMessage = async (message) => {
   }
 
   // call message database
-  var id = await messageDb.createMessage(message, voice_id);
-  return id;
+  var res = await messageDb.createMessage(text, voice_id);
+  var params = {
+    Bucket: `${configs.S3BucketName}/voice`,
+    Key: `.${res.voice_id}.mp3`,
+  };
+  var url = s3.getSignedUrl("getObject", params);
+  res.url = url;
+  delete res.voice_id;
+  return res;
 };
 
 const getMessages = async (timestamp) => {

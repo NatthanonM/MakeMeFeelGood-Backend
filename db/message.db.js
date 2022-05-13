@@ -27,7 +27,13 @@ const createMessage = async (message, voice_id) => {
   } catch (err) {
     console.log("[DB]: ", err.message);
   }
-  return id;
+  var res = {
+    id: id,
+    text: message,
+    upvote: 0,
+    voice_id: voice_id,
+  };
+  return res;
 };
 
 const getMessages = async (start) => {
