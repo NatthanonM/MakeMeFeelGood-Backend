@@ -48,6 +48,7 @@ const getMessages = async (start) => {
         "#T": "text",
         "#UV": "upvote",
         "#VI": "voice_id",
+        "#RC": "report_count",
         "#CA": "created_at",
       },
       ExpressionAttributeValues: {
@@ -55,7 +56,7 @@ const getMessages = async (start) => {
         ":stop": stop,
       },
       FilterExpression: "created_at >= :start AND created_at < :stop",
-      ProjectionExpression: "#ID, #T, #UV, #VI, #CA",
+      ProjectionExpression: "#ID, #T, #UV, #VI, #RC, #CA",
     };
     var data = await docClient.scan(params).promise();
     var sortedItems = data.Items.sort((a, b) => {

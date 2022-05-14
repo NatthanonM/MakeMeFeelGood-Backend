@@ -74,16 +74,20 @@ const createMessage = async (text) => {
 const getMessages = async (timestamp) => {
   // get message from databast
   var messages = await messageDb.getMessages(timestamp);
-  var messages = messages.map((message) => {
-    var params = {
-      Bucket: `${configs.S3BucketName}/voice`,
-      Key: `.${message.voice_id}.mp3`,
-    };
-    var url = s3.getSignedUrl("getObject", params);
-    message.url = url;
-    delete message.voice_id;
-    return message;
-  });
+  var messages = messages
+    .filter((message) => {
+      return message.report_count < 10;
+    })
+    .map((message) => {
+      var params = {
+        Bucket: `${configs.S3BucketName}/voice`,
+        Key: `.${message.voice_id}.mp3`,
+      };
+      var url = s3.getSignedUrl("getObject", params);
+      message.url = url;
+      delete message.voice_id;
+      return message;
+    });
   return messages;
 };
 
