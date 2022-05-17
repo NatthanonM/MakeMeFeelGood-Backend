@@ -2,10 +2,9 @@ const { messageService } = require("../services");
 
 const postMessage = async (req, res, next) => {
   const { message: text } = req.body;
-  const { stratOfDayTimestamp } = req.params;
   // call message service
   try {
-    var message = await messageService.createMessage(text, stratOfDayTimestamp);
+    var message = await messageService.createMessage(text);
     res.status(201).json(message);
     next();
   } catch (e) {

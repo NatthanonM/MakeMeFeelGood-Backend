@@ -5,14 +5,15 @@ var comprehend = new AWS.Comprehend({ apiVersion: "2017-11-27" });
 var polly = new AWS.Polly({ apiVersion: "2016-06-10" });
 var s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
-const createMessage = async (
-  text,
-  stratOfDayTimestamp = new Date().setUTCHours(0, 0, 0, 0)
-) => {
+const createMessage = async (text) => {
   // find message message of today for checking duplication
-  const start = new Date(stratOfDayTimestamp);
-  const stop = date.setDate(date.getDate() + 1);
-  var todayRecords = await messageDb.findMessage(text, start, stop);
+  const startOfDayUtcTimestamp = new Date().setUTCHours(0, 0, 0, 0);
+  const stopOfDayUtcTimestamp = new Date().setUTCHours(23, 59, 59, 999);
+  var todayRecords = await messageDb.findMessage(
+    text,
+    startOfDayUtcTimestamp,
+    stopOfDayUtcTimestamp
+  );
   if (todayRecords.Count != 0) {
     throw new Error("duplicated message");
   }
