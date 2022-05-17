@@ -136,8 +136,6 @@ const findMessage = async (message, start = null, stop = null) => {
         ExpressionAttributeNames: {
           "#ID": "id",
           "#T": "text",
-          "#UV": "upvote",
-          "#VI": "voice_id",
         },
         ExpressionAttributeValues: {
           ":message": message,
@@ -146,7 +144,7 @@ const findMessage = async (message, start = null, stop = null) => {
         },
         FilterExpression:
           "#T = :message AND created_at >= :start AND created_at < :stop",
-        ProjectionExpression: "#ID, #T, #UV, #VI",
+        ProjectionExpression: "#ID, #T",
       };
     } else {
       var params = {
@@ -154,14 +152,12 @@ const findMessage = async (message, start = null, stop = null) => {
         ExpressionAttributeNames: {
           "#ID": "id",
           "#T": "text",
-          "#UV": "upvote",
-          "#VI": "voice_id",
         },
         ExpressionAttributeValues: {
           ":message": message,
         },
         FilterExpression: "#T = :message",
-        ProjectionExpression: "#ID, #T, #UV, #VI",
+        ProjectionExpression: "#ID, #T",
       };
     }
 
